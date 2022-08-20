@@ -46,3 +46,6 @@ infinispan.log
 
 #Misc.
 ObjectStore
+
+
+secrets.txt
