@@ -44,7 +44,6 @@ public class ORMManager {
             	account.setBalance(balance);
                 Session session = sessionFactory.openSession();
                 session.beginTransaction();
-                //session.save(entityName, object);
                 session.save(account);
                 session.getTransaction().commit();
                 session.close();
@@ -55,8 +54,8 @@ public class ORMManager {
      * Creates a Department and assignees to the employees
      */
     public Boolean CreateEmployeesAndDepartment(Department d, Set<Employee> emps) {
-    	Boolean creats;
-    	if(d==null || emps==null) creats=false;
+    	Boolean created;
+    	if(d==null || emps==null) created=false;
     	else {
             Session session = sessionFactory.openSession();
             session.beginTransaction();
@@ -64,16 +63,16 @@ public class ORMManager {
             session.save(d);
             session.getTransaction().commit();
             session.close();
-            creats = true;
+            created = true;
     	}
-        return creats;
+        return created;
     }
     /*
      * Creates an employee with an Account
      */
     public Boolean CreateEmployee(Employee e, Account c) {
-    	Boolean creat;
-    	if(e==null || c==null) creat=false;
+    	Boolean created;
+    	if(e==null || c==null) created=false;
     	else {
             Session session = sessionFactory.openSession();
             session.beginTransaction();
@@ -81,24 +80,24 @@ public class ORMManager {
         	e.setAcount(c);
             session.save(e);
             session.getTransaction().commit();
-            creat = true;
+            created = true;
     		}
     		catch(Exception ex) {
     			ex.printStackTrace();
-    			creat = false;
+    			created = false;
     		}
     		finally {
                 session.close();
     		}
     	}
-    	return creat;
+    	return created;
     }
     /*
      * Return employees from a Department
      */
     public Set<Employee> ReadEmployeesFromDepartment(String depName)
     {
-	    Set<Employee> empleats = new HashSet<Employee>();
+	    Set<Employee> employees = new HashSet<Employee>();
 	    Department d = new Department();
 	    Session session = sessionFactory.openSession();
 	    session.beginTransaction();
@@ -106,11 +105,11 @@ public class ORMManager {
 	    Query query = session.createQuery(hql);
 	    d = (Department)query.getSingleResult();
 	    if(d!=null) {
-	        empleats = d.getEmpleats();
+	        employees = d.getEmpleats();
 	        }
-	    else empleats = null;
+	    else employees = null;
 	    session.close();
-	    return empleats;
+	    return employees;
     }
     /*
      * Gets a Department by it's ID
@@ -126,77 +125,78 @@ public class ORMManager {
      * Get a Account from an Employee by the VAT Number
      */
     public String GetAccountNumberFromEmployee(String nifnie) {
-        String numCompte;
+        String accNum;
     	Session session = sessionFactory.openSession();
         session.beginTransaction();
-        String hqlEmpleat = "from Employee where NIFNIE like '%"+nifnie+"%'";
-        Query query = session.createQuery(hqlEmpleat);
+        String hqlEmployee = "from Employee where NIFNIE like '%"+nifnie+"%'";
+        Query query = session.createQuery(hqlEmployee);
         Employee employee = (Employee)query.getSingleResult();
         if(employee !=null) {
-        numCompte = employee.getAcount().getAcc_number();
-        session.close();
+        accNum = employee.getAcount().getAcc_number();
         }
-        else numCompte = null;
-        return numCompte;
+        else accNum = null;
+        session.close();
+        return accNum;
     }
     /*
      * Updates Employee Department
      */
     public Boolean UpdateEmployeeDepartment(int idEmployee,Department department) {
-    	Boolean actualitzat;
-    	if(department == null) actualitzat = false;
+    	Boolean updated;
+    	if(department == null) updated = false;
     	else {
             Session session = sessionFactory.openSession();
             session.beginTransaction();
     		try {
                 Employee e = session.get(Employee.class, idEmployee);
-                if(e==null) actualitzat=false;
+                if(e==null) updated=false;
                 else {
                     e.setDepartment(department);
                     session.update(e);
                     session.getTransaction().commit();
-                    actualitzat = true;
+                    updated = true;
                 }
+    		}
+    		catch(Exception exc) {
+    			exc.printStackTrace();
+    			updated = false;
+    		}
+            finally {
                 session.close();
-    		}
-    		catch(Exception e) {
-    			e.printStackTrace();
-    			actualitzat = false;
-    			session.close();
-    		}
+            }
     	}
-    	return actualitzat;
+    	return updated;
     }
     /*
      * Gets Employees by a substring
      */
     public List<Employee> GetEmployeesFromLastName(String start){
-    	List<Employee> llistaEmpleats = new ArrayList<Employee>();
+    	List<Employee> employeeList = new ArrayList<Employee>();
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         String hql = "from Employee where last_name like '"+start+"%'";
         Query query = session.createQuery(hql);
-        llistaEmpleats = query.getResultList();
+        employeeList = query.getResultList();
         session.close();  
-    	return llistaEmpleats;
+    	return employeeList;
     }
     /*
      * Gets all data from alll Employees
      */
     public List<String> GetAllDataFromEmployees(){
-    	List<String> llistaInfoEmpleats = new ArrayList<String>();
+    	List<String> employeeInfoList = new ArrayList<String>();
     	Account a = null; Employee e = null;
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         String hql = "from Account a, Employee e where e.acount.id = a.id";
         Query query = session.createQuery(hql);
-        List<Object[]> llista = query.getResultList();
-        for(Object[] fila: llista) {
-            a = (Account)fila[0];
-            e = (Employee)fila[1];
-            llistaInfoEmpleats.add(e.getNifnie() + " - "+ e.getFirst_name()+","+e.getLast_name()+ " - "+ a.getAcc_number()+" - "+ e.getDepartment().getName());
+        List<Object[]> list = query.getResultList();
+        for(Object[] row: list) {
+            a = (Account)row[0];
+            e = (Employee)row[1];
+            employeeInfoList.add(e.getNifnie() + " - "+ e.getFirst_name()+","+e.getLast_name()+ " - "+ a.getAcc_number()+" - "+ e.getDepartment().getName());
         }
         session.close();
-    	return llistaInfoEmpleats;
+    	return employeeInfoList;
     }
 }
